@@ -14,6 +14,16 @@ const emailState_handler = (state, action) => {
   return { value: "", isValid: false };
 }
 
+const passwordState_handler = (state, action) => {
+  if (action.type === "onChange") {
+    return { value: action.value, isValid: action.value.trim().length > 6 }
+  }
+  else if (action.type === "onBlur") {
+    return { value: state.value, isValid: action.value.trim().length > 6 };
+  }
+  return { value: "", isValid: false };
+}
+
 const Login = (props) => {
   // const [enteredEmail, setEnteredEmail] = useState('');
   // const [emailIsValid, setEmailIsValid] = useState();
@@ -23,8 +33,13 @@ const Login = (props) => {
     isValid: null
   })
 
-  const [enteredPassword, setEnteredPassword] = useState('');
-  const [passwordIsValid, setPasswordIsValid] = useState();
+  // const [enteredPassword, setEnteredPassword] = useState('');
+  // const [passwordIsValid, setPasswordIsValid] = useState();
+  const [passwordState, dispatchPasswordState] = useReducer(passwordState_handler, {
+    value: "",
+    isValid: null
+  })
+
   const [enteredCollege, setEnteredCollege] = useState("");
   const [collegeIsValid, setCollegeIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
@@ -44,7 +59,7 @@ const Login = (props) => {
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: "onChange", value: event.target.value })
 
-    setFormIsValid(emailState.isValid === true && enteredPassword.trim().length > 6 && enteredCollege.trim().length > 0)
+    setFormIsValid(emailState.isValid === true && passwordState.isValid === true && enteredCollege.trim().length > 0)
   };
 
   const validateEmailHandler = () => {
@@ -52,19 +67,19 @@ const Login = (props) => {
   };
 
   const passwordChangeHandler = (event) => {
-    setEnteredPassword(event.target.value);
+    dispatchPasswordState({ type: "onChange", value: event.target.value });
 
-    setFormIsValid(emailState.isValid === true && enteredPassword.trim().length > 6 && enteredCollege.trim().length > 0)
+    setFormIsValid(emailState.isValid === true && passwordState.isValid === true && enteredCollege.trim().length > 0)
   };
 
   const validatePasswordHandler = () => {
-    setPasswordIsValid(enteredPassword.trim().length > 6);
+    dispatchPasswordState({ type: "onBlur", value: passwordState.value })
   };
 
   const collegeChangeHandler = (event) => {
     setEnteredCollege(event.target.value);
 
-    setFormIsValid(emailState.isValid === true && enteredPassword.trim().length > 6 && enteredCollege.trim().length > 0)
+    setFormIsValid(emailState.isValid === true && passwordState.isValid === true && enteredCollege.trim().length > 0)
   }
 
   const validateCollegeHandler = () => {
@@ -73,7 +88,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.enteredEmail, enteredPassword, enteredCollege);
+    props.onLogin(emailState.enteredEmail, passwordState.value, enteredCollege);
   };
 
   return (
@@ -89,12 +104,12 @@ const Login = (props) => {
             onBlur={validateEmailHandler}
           />
         </div>
-        <div className={`${classes.control} ${passwordIsValid === false ? classes.invalid : ''}`}>
+        <div className={`${classes.control} ${passwordState.isValid === false ? classes.invalid : ''}`}>
           <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
-            value={enteredPassword}
+            value={passwordState.value}
             onChange={passwordChangeHandler}
             onBlur={validatePasswordHandler}
           />
