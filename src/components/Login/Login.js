@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useContext } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
+import AuthContext from '../store/auth-context';
+import Input from '../UI/Input/Input';
 
 const emailState_handler = (state, action) => {
   if (action.type === "onChange") {
@@ -56,6 +58,8 @@ const Login = (props) => {
   //   }
   // }, [enteredEmail, enteredPassword, enteredCollege])
 
+  const authCtx = useContext(AuthContext);
+
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: "onChange", value: event.target.value })
 
@@ -88,7 +92,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.enteredEmail, passwordState.value, enteredCollege);
+    authCtx.onLogin(emailState.enteredEmail, passwordState.value, enteredCollege);
   };
 
   return (
@@ -96,7 +100,7 @@ const Login = (props) => {
       <form onSubmit={submitHandler}>
         <div className={`${classes.control} ${emailState.isValid === false ? classes.invalid : ''}`}>
           <label htmlFor="email">E-Mail</label>
-          <input
+          <Input
             type="email"
             id="email"
             value={emailState.value}
@@ -106,7 +110,7 @@ const Login = (props) => {
         </div>
         <div className={`${classes.control} ${passwordState.isValid === false ? classes.invalid : ''}`}>
           <label htmlFor="password">Password</label>
-          <input
+          <Input
             type="password"
             id="password"
             value={passwordState.value}
@@ -116,7 +120,7 @@ const Login = (props) => {
         </div>
         <div className={`${classes.control} ${collegeIsValid === false ? classes.invalid : ''}`}>
           <label htmlFor="college">College</label>
-          <input
+          <Input
             type="text"
             id="college"
             value={enteredCollege}
